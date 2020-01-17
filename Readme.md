@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Ксения Манджиева](https://up.htmlacademy.ru/javascript/19/user/1077409).
-* Наставник: `Неизвестно`.
+* Наставник: Владислав Кривокора (https://htmlacademy.ru/profile/krivokora).
 
 ---
 
