@@ -27,7 +27,7 @@ var getRandomLength = function (array) {
 };
 
 // Функция для создания одного объекта
-var getApartment = function(index) {
+var getApartment = function (index) {
   var locationX = getRandomNumber(0, mapWidth);
   var locationY = getRandomNumber(130, 630);
   var apartment = {
@@ -36,14 +36,14 @@ var getApartment = function(index) {
     },
 
     offer: {
-      title: TYPE[getRandomNumber(0, TYPE.length)],
+      title: TYPE[getRandomNumber(0, TYPE.length - 1)],
       address: locationX + ', ' + locationY,
-      price: PRICE[getRandomNumber(0, PRICE.length)],
-      type: TYPE[getRandomNumber(0, TYPE.length)],
+      price: PRICE[getRandomNumber(0, PRICE.length - 1)],
+      type: TYPE[getRandomNumber(0, TYPE.length - 1)],
       rooms: getRandomNumber(1, 5),
       guests: getRandomNumber(1, 8),
-      checkin: CHECK_IN[getRandomNumber(0, CHECK_IN.length)],
-      checkout: CHECK_OUT[getRandomNumber(0, CHECK_OUT.length)],
+      checkin: CHECK_IN[getRandomNumber(0, CHECK_IN.length - 1)],
+      checkout: CHECK_OUT[getRandomNumber(0, CHECK_OUT.length - 1)],
       features: getRandomLength(FEATURES),
       description: 'someDescription',
       photos: getRandomLength(PHOTOS)
@@ -62,7 +62,6 @@ var apartments = [];
 for (var i = 0; i < apartmentsAmount; i++) {
   apartments.push(getApartment(i));
 }
-console.log(apartments);
 
 var map = document.querySelector('.map');
 map.classList.remove('map--faded');
