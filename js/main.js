@@ -1,7 +1,13 @@
 'use strict';
 
-var TYPE = ['palace', 'flat', 'house', 'bungalo'];
-var PRICE = [2000, 2500, 3000, 3500];
+var types = {
+  palace: 'Дворец',
+  flat: 'Квартира',
+  house: 'Дом',
+  bungalo: 'Бунгало'
+};
+
+var PRICES = [2000, 2500, 3000, 3500];
 var CHECK_IN = ['12:00', '13:00', '14:00'];
 var CHECK_OUT = ['12:00', '13:00', '14:00'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer, elevator', 'conditioner'];
@@ -22,8 +28,9 @@ var getRandomNumber = function (min, max) {
 
 // Функция возвращающая массив случайной длины
 var getRandomLength = function (array) {
-  array.length = getRandomNumber(1, array.length);
-  return array;
+  var copyArray = array.slice();
+  copyArray.length = getRandomNumber(1, array.length);
+  return copyArray;
 };
 
 // Функция для создания одного объекта
@@ -36,10 +43,10 @@ var getApartment = function (index) {
     },
 
     offer: {
-      title: TYPE[getRandomNumber(0, TYPE.length - 1)],
+      title: 'Предложение №' + (index + 1),
       address: locationX + ', ' + locationY,
-      price: PRICE[getRandomNumber(0, PRICE.length - 1)],
-      type: TYPE[getRandomNumber(0, TYPE.length - 1)],
+      price: PRICES[getRandomNumber(0, PRICES.length - 1)],
+      type: Object.keys(types)[getRandomNumber(0, Object.keys(types).length - 1)],
       rooms: getRandomNumber(1, 5),
       guests: getRandomNumber(1, 8),
       checkin: CHECK_IN[getRandomNumber(0, CHECK_IN.length - 1)],
@@ -88,3 +95,40 @@ for (var j = 0; j < apartments.length; j++) {
 var similarListElement = document.querySelector('.map__pins');
 similarListElement.appendChild(fragment);
 
+var popupTemplate = document.querySelector('#card')
+  .content
+  .querySelector('.popup');
+
+// Функция копирует img и свойству src присваивает значение элементов сгенерированного массива
+var getPhotoPopup = function (photoArray) {
+  var photoPopup = popupTemplate.querySelector('.popup__photo');
+  var fragmentOfPhoto = document.createDocumentFragment();
+  for (var k = 0; k < photoArray.length; k++) {
+    var clonedPhoto = photoPopup.cloneNode(true);
+    photoPopup.remove();
+    clonedPhoto.src = photoArray[k];
+    fragmentOfPhoto.appendChild(clonedPhoto);
+  }
+  return fragmentOfPhoto;
+};
+
+// Заполняем карточку элемента данными из объекта
+var setCard = function (apartment) {
+  popupTemplate.querySelector('.popup__title').textContent = apartment.offer.title;
+  popupTemplate.querySelector('.popup__text--address').textContent = apartment.offer.address;
+  popupTemplate.querySelector('.popup__text--price').textContent = apartment.offer.price + '₽/ночь';
+  popupTemplate.querySelector('.popup__type').textContent = types[apartment.offer.type];
+  popupTemplate.querySelector('.popup__text--capacity').textContent = apartment.offer.rooms + ' комнаты для ' + getApartment(1).offer.guests + ' гостей';
+  popupTemplate.querySelector('.popup__text--time').textContent = 'Заезд после ' + apartment.offer.checkin + ', выезд до ' + getApartment(1).offer.checkout;
+  popupTemplate.querySelector('.popup__features').textContent = apartment.offer.features;
+  popupTemplate.querySelector('.popup__description').textContent = apartment.offer.description;
+  popupTemplate.querySelector('.popup__photos').appendChild(getPhotoPopup(apartment.offer.photos));
+  popupTemplate.querySelector('.popup__avatar').src = apartment.author.avatar;
+  return popupTemplate;
+};
+
+// Вставляем в заполненную карточку перед блоком  '.map__filters-container'
+var fragmentOfCard = document.createDocumentFragment();
+var filtersContainer = document.querySelector('.map__filters-container');
+fragmentOfCard.appendChild(setCard(apartments[0]));
+filtersContainer.before(fragmentOfCard);
