@@ -19,7 +19,13 @@ var PHOTOS = [
 var apartmentsAmount = 8;
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
+var ENTER_KEY = 'Enter';
 var mapWidth = document.querySelector('.map').clientWidth;
+var PIN_WIDTH_DIACTIVE = 62;
+var PIN_HEIGHT_DIACTIVE = 62;
+var PIN_DIACTIVE_LEFT = 570;
+var PIN_DIACTIVE_TOP = 375;
+var PIN_SHARP_END_HEIGHT = 22;
 
 // Функция подбора случайного числа в заданном промежутке
 var getRandomNumber = function (min, max) {
@@ -71,7 +77,6 @@ for (var i = 0; i < apartmentsAmount; i++) {
 }
 
 var map = document.querySelector('.map');
-map.classList.remove('map--faded');
 
 var pinTemplate = document.querySelector('#pin')
   .content
@@ -93,7 +98,6 @@ for (var j = 0; j < apartments.length; j++) {
 }
 
 var similarListElement = document.querySelector('.map__pins');
-similarListElement.appendChild(fragment);
 
 var popupTemplate = document.querySelector('#card')
   .content
@@ -129,6 +133,85 @@ var setCard = function (apartment) {
 
 // Вставляем в заполненную карточку перед блоком  '.map__filters-container'
 var fragmentOfCard = document.createDocumentFragment();
-var filtersContainer = document.querySelector('.map__filters-container');
+// var filtersContainer = document.querySelector('.map__filters-container');
 fragmentOfCard.appendChild(setCard(apartments[0]));
-filtersContainer.before(fragmentOfCard);
+// filtersContainer.before(fragmentOfCard);
+
+
+// Функция устанавливает атрибут disabled
+var diactivateElement = function (element) {
+  for (var m = 0; m < element.length; m++) {
+    element[m].setAttribute('disabled', 'disabled');
+  }
+};
+
+var adForm = document.querySelector('.ad-form');
+var adFormElement = adForm.querySelectorAll('.ad-form__element');
+var roomNumber = adForm.querySelector('#room_number');
+var guestNumber = adForm.querySelector('#capacity');
+var mapFilters = document.querySelectorAll('.map__filter');
+
+diactivateElement(adFormElement);
+diactivateElement(mapFilters);
+
+//  Функция удаляет атрибут disabled
+var activateElement = function (disabledElement) {
+  for (var n = 0; n < disabledElement.length; n++) {
+    disabledElement[n].removeAttribute('disabled');
+  }
+};
+
+// Перевод страницы в активное состояние
+// по клику на левую кнопку мыши
+var mapPinMain = document.querySelector('.map__pin--main');
+var addressInput = document.querySelector('#address');
+addressInput.value = (PIN_DIACTIVE_LEFT + PIN_WIDTH_DIACTIVE / 2) + ', ' + (PIN_DIACTIVE_TOP + PIN_HEIGHT_DIACTIVE / 2);
+
+mapPinMain.addEventListener('mousedown', function (event) {
+  if (event.which === 1) {
+    similarListElement.appendChild(fragment);
+    activateElement(adFormElement);
+    activateElement(mapFilters);
+    map.classList.remove('map--faded');
+    adForm.classList.remove('ad-form--disabled');
+    addressInput.value = (PIN_DIACTIVE_LEFT + PIN_WIDTH_DIACTIVE / 2) + ', ' + (PIN_DIACTIVE_TOP + PIN_HEIGHT_DIACTIVE / 2 + PIN_SHARP_END_HEIGHT);
+  }
+});
+
+// по клавише Enter
+mapPinMain.addEventListener('keydown', function (evt) {
+  if (evt.key === ENTER_KEY) {
+    similarListElement.appendChild(fragment);
+    activateElement(adFormElement);
+    activateElement(mapFilters);
+    map.classList.remove('map--faded');
+    adForm.classList.remove('ad-form--disabled');
+    addressInput.value = (PIN_DIACTIVE_LEFT + PIN_WIDTH_DIACTIVE / 2) + ', ' + (PIN_DIACTIVE_TOP + PIN_HEIGHT_DIACTIVE / 2 + PIN_SHARP_END_HEIGHT);
+  }
+});
+
+var guests = guestNumber.querySelectorAll('option');
+
+// валидация на количество гостей
+roomNumber.onclick = function () {
+  diactivateElement(guests);
+  if (roomNumber.value === '1') {
+    guests[2].removeAttribute('disabled');
+  } else if (roomNumber.value === '2') {
+    guests[2].removeAttribute('disabled');
+    guests[1].removeAttribute('disabled');
+  } else if (roomNumber.value === '3') {
+    guests[2].removeAttribute('disabled');
+    guests[1].removeAttribute('disabled');
+    guests[0].removeAttribute('disabled');
+  } else if (roomNumber.value === '100') {
+    guests[3].removeAttribute('disabled');
+  }
+};
+
+// Валидация на текстовое поле заголовка
+var titleInput = adForm.querySelector('input[name = "title"]');
+titleInput.setAttribute('required', 'required');
+titleInput.setAttribute('pattern', '[A-Za-zА-Яа-яЁё]');
+
+
