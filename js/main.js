@@ -21,11 +21,28 @@ var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
 var ENTER_KEY = 'Enter';
 var mapWidth = document.querySelector('.map').clientWidth;
-var PIN_WIDTH_DIACTIVE = 62;
-var PIN_HEIGHT_DIACTIVE = 62;
+var mapPinMain = document.querySelector('.map__pin--main');
+var PIN_WIDTH_DIACTIVE = mapPinMain.offsetWidth;
+var PIN_HEIGHT_DIACTIVE = mapPinMain.offsetHeight;
 var PIN_DIACTIVE_LEFT = 570;
 var PIN_DIACTIVE_TOP = 375;
 var PIN_SHARP_END_HEIGHT = 22;
+var map = document.querySelector('.map');
+var pinTemplate = document.querySelector('#pin')
+  .content
+  .querySelector('.map__pin');
+var similarListElement = document.querySelector('.map__pins');
+var popupTemplate = document.querySelector('#card')
+    .content
+    .querySelector('.popup');
+var adForm = document.querySelector('.ad-form');
+var adFormElement = adForm.querySelectorAll('.ad-form__element');
+var roomNumber = adForm.querySelector('#room_number');
+var guestNumber = adForm.querySelector('#capacity');
+var guests = guestNumber.querySelectorAll('option');
+var mapFilters = document.querySelectorAll('.map__filter');
+var addressInput = document.querySelector('#address');
+var titleInput = adForm.querySelector('input[name = "title"]');
 
 // Функция подбора случайного числа в заданном промежутке
 var getRandomNumber = function (min, max) {
@@ -76,12 +93,6 @@ for (var i = 0; i < apartmentsAmount; i++) {
   apartments.push(getApartment(i));
 }
 
-var map = document.querySelector('.map');
-
-var pinTemplate = document.querySelector('#pin')
-  .content
-  .querySelector('.map__pin');
-
 // Функция клонирует элемент и заполняет данными из массива объектов
 var renderPin = function (pin) {
   var pinElement = pinTemplate.cloneNode(true);
@@ -96,12 +107,6 @@ var fragment = document.createDocumentFragment();
 for (var j = 0; j < apartments.length; j++) {
   fragment.appendChild(renderPin(apartments[j]));
 }
-
-var similarListElement = document.querySelector('.map__pins');
-
-var popupTemplate = document.querySelector('#card')
-  .content
-  .querySelector('.popup');
 
 // Функция копирует img и свойству src присваивает значение элементов сгенерированного массива
 var getPhotoPopup = function (photoArray) {
@@ -137,7 +142,6 @@ var fragmentOfCard = document.createDocumentFragment();
 fragmentOfCard.appendChild(setCard(apartments[0]));
 // filtersContainer.before(fragmentOfCard);
 
-
 // Функция устанавливает атрибут disabled
 var diactivateElement = function (element) {
   for (var m = 0; m < element.length; m++) {
@@ -145,12 +149,7 @@ var diactivateElement = function (element) {
   }
 };
 
-var adForm = document.querySelector('.ad-form');
-var adFormElement = adForm.querySelectorAll('.ad-form__element');
-var roomNumber = adForm.querySelector('#room_number');
-var guestNumber = adForm.querySelector('#capacity');
-var mapFilters = document.querySelectorAll('.map__filter');
-
+// Перевод страницы в неактивное состояние
 diactivateElement(adFormElement);
 diactivateElement(mapFilters);
 
@@ -162,55 +161,48 @@ var activateElement = function (disabledElement) {
 };
 
 // Перевод страницы в активное состояние
-// по клику на левую кнопку мыши
-var mapPinMain = document.querySelector('.map__pin--main');
-var addressInput = document.querySelector('#address');
-addressInput.value = (PIN_DIACTIVE_LEFT + PIN_WIDTH_DIACTIVE / 2) + ', ' + (PIN_DIACTIVE_TOP + PIN_HEIGHT_DIACTIVE / 2);
+addressInput.value = Math.floor((PIN_DIACTIVE_LEFT + PIN_WIDTH_DIACTIVE / 2)) + ', ' + Math.floor((PIN_DIACTIVE_TOP + PIN_HEIGHT_DIACTIVE / 2));
 
-mapPinMain.addEventListener('mousedown', function (event) {
-  if (event.which === 1) {
+function pinActivateHandler(event) {
+  if (event.which === 1 || event.key === ENTER_KEY) {
     similarListElement.appendChild(fragment);
     activateElement(adFormElement);
     activateElement(mapFilters);
     map.classList.remove('map--faded');
     adForm.classList.remove('ad-form--disabled');
-    addressInput.value = (PIN_DIACTIVE_LEFT + PIN_WIDTH_DIACTIVE / 2) + ', ' + (PIN_DIACTIVE_TOP + PIN_HEIGHT_DIACTIVE / 2 + PIN_SHARP_END_HEIGHT);
+    addressInput.value = Math.floor((PIN_DIACTIVE_LEFT + PIN_WIDTH_DIACTIVE / 2)) + ', ' + Math.floor((PIN_DIACTIVE_TOP + PIN_HEIGHT_DIACTIVE / 2 + PIN_SHARP_END_HEIGHT));
   }
-});
+}
+
+// по клику на левую кнопку мыши
+mapPinMain.addEventListener('mousedown', pinActivateHandler);
 
 // по клавише Enter
-mapPinMain.addEventListener('keydown', function (evt) {
-  if (evt.key === ENTER_KEY) {
-    similarListElement.appendChild(fragment);
-    activateElement(adFormElement);
-    activateElement(mapFilters);
-    map.classList.remove('map--faded');
-    adForm.classList.remove('ad-form--disabled');
-    addressInput.value = (PIN_DIACTIVE_LEFT + PIN_WIDTH_DIACTIVE / 2) + ', ' + (PIN_DIACTIVE_TOP + PIN_HEIGHT_DIACTIVE / 2 + PIN_SHARP_END_HEIGHT);
-  }
-});
-
-var guests = guestNumber.querySelectorAll('option');
+mapPinMain.addEventListener('keydown', pinActivateHandler);
 
 // валидация на количество гостей
 roomNumber.onclick = function () {
   diactivateElement(guests);
-  if (roomNumber.value === '1') {
-    guests[2].removeAttribute('disabled');
-  } else if (roomNumber.value === '2') {
-    guests[2].removeAttribute('disabled');
-    guests[1].removeAttribute('disabled');
-  } else if (roomNumber.value === '3') {
-    guests[2].removeAttribute('disabled');
-    guests[1].removeAttribute('disabled');
-    guests[0].removeAttribute('disabled');
-  } else if (roomNumber.value === '100') {
-    guests[3].removeAttribute('disabled');
+  switch (roomNumber.value) {
+    case '1':
+      guests[2].removeAttribute('disabled');
+      break;
+    case '2':
+      guests[2].removeAttribute('disabled');
+      guests[1].removeAttribute('disabled');
+      break;
+    case '3':
+      guests[2].removeAttribute('disabled');
+      guests[1].removeAttribute('disabled');
+      guests[0].removeAttribute('disabled');
+      break;
+    case '100':
+      guests[3].removeAttribute('disabled');
+      break;
   }
 };
 
 // Валидация на текстовое поле заголовка
-var titleInput = adForm.querySelector('input[name = "title"]');
 titleInput.setAttribute('required', 'required');
 titleInput.setAttribute('pattern', '[A-Za-zА-Яа-яЁё]');
 
