@@ -43,6 +43,11 @@ var guests = guestNumber.querySelectorAll('option');
 var mapFilters = document.querySelectorAll('.map__filter');
 var addressInput = document.querySelector('#address');
 var titleInput = adForm.querySelector('input[name = "title"]');
+var priceInput = adForm.querySelector('input[name = "price"]')
+var elementTime = document.querySelector('.ad-form__element--time');
+var timeIn = document.querySelector('#timein');
+var timeOut = document.querySelector('#timeout');
+
 
 // Функция подбора случайного числа в заданном промежутке
 var getRandomNumber = function (min, max) {
@@ -142,21 +147,21 @@ var fragmentOfCard = document.createDocumentFragment();
 fragmentOfCard.appendChild(setCard(apartments[0]));
 // filtersContainer.before(fragmentOfCard);
 
-// Функция устанавливает атрибут disabled
-var diactivateElement = function (element) {
+// Функция устанавливает атрибут
+var setAttributForElement = function (element, attribut) {
   for (var m = 0; m < element.length; m++) {
-    element[m].setAttribute('disabled', 'disabled');
+    element[m].setAttribute(attribut, attribut);
   }
 };
 
 // Перевод страницы в неактивное состояние
-diactivateElement(adFormElement);
-diactivateElement(mapFilters);
+setAttributForElement(adFormElement, 'disabled');
+setAttributForElement(mapFilters, 'disabled');
 
-//  Функция удаляет атрибут disabled
-var activateElement = function (disabledElement) {
-  for (var n = 0; n < disabledElement.length; n++) {
-    disabledElement[n].removeAttribute('disabled');
+//  Функция удаляет атрибут
+var deleteAttributOfElement = function (element, attribut) {
+  for (var n = 0; n < element.length; n++) {
+    element[n].removeAttribute(attribut);
   }
 };
 
@@ -166,8 +171,8 @@ addressInput.value = Math.floor((PIN_DIACTIVE_LEFT + PIN_WIDTH_DIACTIVE / 2)) + 
 function pinActivateHandler(event) {
   if (event.which === 1 || event.key === ENTER_KEY) {
     similarListElement.appendChild(fragment);
-    activateElement(adFormElement);
-    activateElement(mapFilters);
+    deleteAttributOfElement(adFormElement, 'disabled');
+    deleteAttributOfElement(mapFilters, 'disabled');
     map.classList.remove('map--faded');
     adForm.classList.remove('ad-form--disabled');
     addressInput.value = Math.floor((PIN_DIACTIVE_LEFT + PIN_WIDTH_DIACTIVE / 2)) + ', ' + Math.floor((PIN_DIACTIVE_TOP + PIN_HEIGHT_DIACTIVE / 2 + PIN_SHARP_END_HEIGHT));
@@ -182,7 +187,7 @@ mapPinMain.addEventListener('keydown', pinActivateHandler);
 
 // валидация на количество гостей
 roomNumber.onclick = function () {
-  diactivateElement(guests);
+  setAttributForElement(guests, 'disabled');
   switch (roomNumber.value) {
     case '1':
       guests[2].removeAttribute('disabled');
@@ -206,4 +211,35 @@ roomNumber.onclick = function () {
 titleInput.setAttribute('required', 'required');
 titleInput.setAttribute('pattern', '[A-Za-zА-Яа-яЁё]');
 
+// Синхронизация времени заселения
+elementTime.addEventListener('click', function (evt) {
+  timeOut.value = evt.target.value;
+  timeIn.value = evt.target.value;
+});
 
+// Валидация поля с ценой
+priceInput.setAttribute('required', 'required');
+priceInput.setAttribute('pattern', '[0 - 1000000]');
+
+// Синхронизация цены и вида жилья
+var selectOfTypes = adForm.querySelector('#type');
+selectOfTypes.addEventListener('click', function () {
+  switch (selectOfTypes.value) {
+    case 'palace':
+      selectOfTypes[3].setAttribute('min', '10000');
+      priceInput.placeholder = '10000';
+      break;
+    case 'house':
+      selectOfTypes[2].setAttribute('min', '5000');
+      priceInput.placeholder = '5000';
+      break;
+    case 'flat':
+      selectOfTypes[1].setAttribute('min', '1000');
+      priceInput.placeholder = '1000';
+      break;
+    case 'bungalo':
+      selectOfTypes[0].setAttribute('min', '0');
+      priceInput.placeholder = '0';
+      break;
+  }
+});
