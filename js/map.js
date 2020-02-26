@@ -20,7 +20,7 @@
   var mapFilters = document.querySelectorAll('.map__filter');
   var addressInput = document.querySelector('#address');
   var filtersContainer = document.querySelector('.map__filters-container');
-  var closePopup = function () {
+  var closeCard = function () {
     popupTemplate.classList.add('hidden');
   };
 
@@ -29,17 +29,18 @@
     var pins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
     pins.forEach(function (pin, index) {
       pin.addEventListener('click', function () {
-        var deletedPopup = document.querySelector('.popup');
-        if (deletedPopup) {
-          deletedPopup.remove();
+        var deletedCard = document.querySelector('.popup');
+        if (deletedCard) {
+          deletedCard.remove();
         }
         var fragmentOfCard = document.createDocumentFragment();
         fragmentOfCard.appendChild(window.card.createdCard(window.data.apartments[index]));
         filtersContainer.before(fragmentOfCard);
 
-        var buttonPopupClose = document.querySelector('.popup__close');
+        var currentCard = document.querySelector('.popup');
+        var buttonPopupClose = currentCard.querySelector('.popup__close');
         buttonPopupClose.addEventListener('click', function () {
-          closePopup();
+          currentCard.remove();
         });
       });
     });
