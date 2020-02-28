@@ -25,7 +25,7 @@
     document.removeEventListener('keydown', onPopupEscPress);
   };
 
-  var mounted = function () {
+  var mountedCard = function () {
     var currentCard = document.querySelector('.popup');
     var buttonPopupClose = currentCard.querySelector('.popup__close');
 
@@ -40,7 +40,7 @@
     });
   };
 
-  var destroyed = function () {
+  var destroyedCard = function () {
     var deletedCard = document.querySelector('.popup');
     if (deletedCard) {
       deletedCard.remove();
@@ -53,7 +53,7 @@
     pins.forEach(function (pin, index) {
       pin.addEventListener('click', function () {
         // Удаляем предыдущие карточки
-        destroyed();
+        destroyedCard();
 
         // Генерируем новую карточку
         var fragmentOfCard = document.createDocumentFragment();
@@ -61,7 +61,7 @@
         filtersContainer.before(fragmentOfCard);
 
         // Закрытие карточки
-        mounted();
+        mountedCard();
       });
     });
   };
@@ -114,6 +114,7 @@
     settingAttributForElement: setAttributForElement,
     addressInput: addressInput,
     SHARP_END_X: SHARP_END_X,
-    SHARP_END_Y: SHARP_END_Y
+    SHARP_END_Y: SHARP_END_Y,
+    PIN_SHARP_END_HEIGHT: PIN_SHARP_END_HEIGHT,
   };
 })();
