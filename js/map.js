@@ -9,7 +9,6 @@
   var PIN_DIACTIVE_TOP = 375;
   var PIN_SHARP_END_HEIGHT = 22;
   var map = document.querySelector('.map');
-  var similarListElement = document.querySelector('.map__pins');
   var adForm = document.querySelector('.ad-form');
   var adFormElement = adForm.querySelectorAll('.ad-form__element');
   var mapFilters = document.querySelectorAll('.map__filter');
@@ -91,9 +90,17 @@
   var ADDRESS_INPUT_Y = PIN_DIACTIVE_TOP + SHARP_END_Y;
   addressInput.value = Math.floor((PIN_DIACTIVE_LEFT + PIN_WIDTH_DIACTIVE / 2)) + ', ' + Math.floor((PIN_DIACTIVE_TOP + PIN_HEIGHT_DIACTIVE / 2));
 
+  var successHandler = function () {
+    window.pin.successHandler();
+  };
+
+  var errorHandler = function () {
+    window.pin.errorHandler();
+  };
+
   function pinActivateHandler(event) {
     if (event.which === 1 || event.key === ENTER_KEY) {
-      similarListElement.appendChild(window.pin.fragment);
+      window.backend.load(successHandler, errorHandler);
       deleteAttributOfElement(adFormElement, 'disabled');
       deleteAttributOfElement(mapFilters, 'disabled');
       map.classList.remove('map--faded');
@@ -109,6 +116,9 @@
 
   // по клавише Enter
   mapPinMain.addEventListener('keydown', pinActivateHandler);
+  document.addEventListener('click', function () {
+    showCard();
+  });
 
   window.map = {
     settingAttributForElement: setAttributForElement,
