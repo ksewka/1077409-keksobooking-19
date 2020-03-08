@@ -133,7 +133,7 @@
       adForm.classList.remove('ad-form--disabled');
       addressInput.value = ADDRESS_INPUT_X + ', ' + ADDRESS_INPUT_Y;
       showCard();
-      //mapPinMain.removeEventListener('mousedown', pinActivateHandler);
+      // mapPinMain.removeEventListener('mousedown', pinActivateHandler);
     }
   }
 
