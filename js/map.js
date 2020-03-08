@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  var mainPin = document.querySelector('.map__pin--main');
   var ENTER_KEY = 'Enter';
   var mapPinMain = document.querySelector('.map__pin--main');
   var PIN_WIDTH_DIACTIVE = 65;
@@ -14,6 +15,15 @@
   var mapFilters = document.querySelectorAll('.map__filter');
   var addressInput = document.querySelector('#address');
   var filtersContainer = document.querySelector('.map__filters-container');
+  var successMessage = document.querySelector('#success')
+    .content
+    .querySelector('.success');
+  var errorMessage = document.querySelector('#error')
+    .content
+    .querySelector('.error');
+  var errorButton = errorMessage.querySelector('.error__button');
+  var main = document.querySelector('main');
+  var resetFormButton = adForm.querySelector('.ad-form__reset');
 
   var onPopupEscPress = function (evt) {
     window.util.isEscEvent(evt, closePopup);
@@ -65,6 +75,14 @@
     });
   };
 
+  // Функция удаляет все пины
+  var deleteAllPins = function () {
+    var allPins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
+    for (var l = 0; l < allPins.length; l++) {
+      allPins[l].remove();
+    }
+  };
+
   // Функция устанавливает атрибут
   var setAttributForElement = function (element, attribut) {
     for (var m = 0; m < element.length; m++) {
@@ -73,8 +91,16 @@
   };
 
   // Перевод страницы в неактивное состояние
-  setAttributForElement(adFormElement, 'disabled');
-  setAttributForElement(mapFilters, 'disabled');
+  var deactivatePage = function () {
+    setAttributForElement(adFormElement, 'disabled');
+    setAttributForElement(mapFilters, 'disabled');
+    map.classList.add('map--faded');
+    adForm.classList.add('ad-form--disabled');
+    addressInput.value = ADDRESS_INPUT_X + ', ' + ADDRESS_INPUT_Y;
+    mainPin.style.left = 570 + 'px';
+    mainPin.style.top = 375 + 'px';
+  };
+  deactivatePage();
 
   //  Функция удаляет атрибут
   var deleteAttributOfElement = function (element, attribut) {
@@ -100,14 +126,14 @@
 
   function pinActivateHandler(event) {
     if (event.which === 1 || event.key === ENTER_KEY) {
-      window.backend.load(successHandler, errorHandler);
+      window.backend.download(successHandler, errorHandler);
       deleteAttributOfElement(adFormElement, 'disabled');
       deleteAttributOfElement(mapFilters, 'disabled');
       map.classList.remove('map--faded');
       adForm.classList.remove('ad-form--disabled');
       addressInput.value = ADDRESS_INPUT_X + ', ' + ADDRESS_INPUT_Y;
       showCard();
-      mapPinMain.removeEventListener('mousedown', pinActivateHandler);
+      //mapPinMain.removeEventListener('mousedown', pinActivateHandler);
     }
   }
 
@@ -116,8 +142,80 @@
 
   // по клавише Enter
   mapPinMain.addEventListener('keydown', pinActivateHandler);
+
   document.addEventListener('click', function () {
     showCard();
+  });
+
+  var EscOnSuccess = function (evt) {
+    window.util.isEscEvent(evt, closeSuccessMessage);
+  };
+
+  var EscOnError = function (evt) {
+    window.util.isEscEvent(evt, closeErrorMessage);
+  };
+
+  var closeSuccessByClick = function () {
+    closeSuccessMessage();
+  };
+
+  var closeErrorByClick = function () {
+    closeErrorMessage();
+  };
+
+  // Функция для закрытия сообщения об успешной отправке
+  var closeSuccessMessage = function () {
+    successMessage.classList.add('hidden');
+    document.removeEventListener('keydown', EscOnSuccess);
+    successMessage.removeEventListener('click', closeSuccessByClick);
+
+  };
+
+  var closeErrorMessage = function () {
+    errorMessage.classList.add('hidden');
+    document.removeEventListener('keydown', EscOnError);
+    errorMessage.removeEventListener('click', closeErrorByClick);
+    document.removeEventListener('click', closeErrorByClick);
+  };
+
+  // Функция показывает сообщение об успешной отправке
+  var showSuccessMessage = function () {
+    successMessage.classList.remove('hidden');
+    main.appendChild(successMessage);
+    document.addEventListener('keydown', EscOnSuccess);
+    successMessage.addEventListener('click', closeSuccessByClick);
+  };
+
+  var showErrorMessage = function () {
+    errorMessage.classList.remove('hidden');
+    main.appendChild(errorMessage);
+    document.addEventListener('keydown', EscOnError);
+    errorButton.addEventListener('click', closeErrorMessage);
+    document.addEventListener('click', closeErrorByClick);
+  };
+
+  // Обработчик при успешной отправки формы
+  var successSubmitHandler = function () {
+    showSuccessMessage();
+    adForm.reset();
+    deactivatePage();
+    deleteAllPins();
+  };
+
+  // Обработчик при ошибке отправки формы
+  var errorSubmitHandler = function () {
+    showErrorMessage();
+  };
+
+  // Отправка данных на сервер Ajax
+  adForm.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+    window.backend.upload(new FormData(adForm), successSubmitHandler, errorSubmitHandler);
+  });
+
+  // Обработчик на кнопку очистки формы
+  resetFormButton.addEventListener('click', function () {
+    adForm.reset();
   });
 
   window.map = {

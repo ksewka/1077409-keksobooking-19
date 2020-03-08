@@ -11,9 +11,11 @@
   var timeIn = document.querySelector('#timein');
   var timeOut = document.querySelector('#timeout');
 
+  guests[2].setAttribute('selected', 'selected');
   // валидация на количество гостей
   roomNumber.onclick = function () {
     window.map.settingAttributForElement(guests, 'disabled');
+    guestNumber.removeAttribute('disabled', 'disabled');
     switch (roomNumber.value) {
       case '1':
         guests[2].removeAttribute('disabled');
@@ -35,7 +37,6 @@
 
   // Валидация на текстовое поле заголовка
   titleInput.setAttribute('required', 'required');
-  titleInput.setAttribute('pattern', '[A-Za-zА-Яа-яЁё]');
 
   // Синхронизация времени заселения
   elementTime.addEventListener('click', function (evt) {
